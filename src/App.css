@@ -1,38 +1,39 @@
 body {
   font-family: Arial, sans-serif;
-  background-color: #ffffff; /* Light background */
-  color: #222222; /* Dark text for contrast */
+  background-color: #fbd1a2; /* Light background */
+  color: #33ca7f; /* Dark green text for contrast */
   margin: 0;
   padding: 0;
 }
 
 .container {
   display: flex;
+  color: #000;
   width: 100%;
-  flex-direction:
+  flex-direction: row;
 }
 
 .sidebar {
   width: 1200px;
   order: 2;
-  background-color: #1c5d99; /* Sidebar color */
+  background-color: #7dcfb6; /* Sidebar color */
   padding: 20px;
-  color: white;
+  color: black;
 }
 
 .main {
   flex: 1;
   order: 1;
   padding: 20px;
-  background-color: #639fab; /* Main content background */
+  background-color: #ece4b7; /* Main content background */
 }
 
 h1 {
-  color: #222222; /* Main heading color */
+  color: #33ca7f; /* Main heading color */
   text-align: center; /* Center the heading */
 }
 
-.choiceslang {
+.choices {
   margin-bottom: 20px; /* Space below the choices section */
   border: 1px solid #ccc; /* Light border for distinction */
   border-radius: 8px; /* Rounded corners */
@@ -41,13 +42,13 @@ h1 {
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
 
-.choiceslang label {
+.choices label {
   display: block; /* Make each label block to stack */
   font-weight: bold; /* Bold font for labels */
   margin-bottom: 5px; /* Space below labels */
 }
 
-.choiceslang select {
+.choices select {
   width: 100%; /* Full width for select elements */
   padding: 10px; /* Padding inside the select box */
   border: 1px solid #ccc; /* Light border */
@@ -57,13 +58,13 @@ h1 {
   transition: border-color 0.3s; /* Smooth border color transition */
 }
 
-.choiceslang select:hover {
-  border-color: #1c5d99; /* Change border color on hover */
+.choices select:hover {
+  border-color: #7dcfb6; /* Change border color on hover */
 }
 
-.choiceslang select:focus {
+.choices select:focus {
   outline: none; /* Remove default focus outline */
-  border-color: #1c5d99; /* Change border color when focused */
+  border-color: #7dcfb6; /* Change border color when focused */
 }
 
 .model-option {
@@ -98,9 +99,9 @@ h1 {
 }
 
 textarea {
-  width: 98%; /* Make both text areas the same width */
+  width: 90%; /* Make both text areas the same width */
   height: 150px; /* Increased height for consistency */
-  margin-bottom: 10px;
+  margin: 10px 0px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -108,10 +109,10 @@ textarea {
 
 button {
   padding: 12px 24px; /* Increased size for the button */
-  background-color: #bbcde5; /* Button color */
-  color: #222222; /* Dark text for contrast */
+  background-color: #33ca7f; /* Button color */
+  color: #fbd1a2; /* Light text for contrast */
   font-size: medium;
-  width: 30%;
+  width: 50%;
   border: none;
   border-radius: 4px;
   cursor: pointer;
@@ -120,7 +121,7 @@ button {
 }
 
 button:hover {
-  background-color: #1C5D99; /* Button hover color */
+  background-color: #7dcfb6; /* Button hover color */
 }
 
 .translation {
@@ -140,7 +141,7 @@ button:hover {
   justify-content: center; /* Horizontally center the icon */
   width: 40px; /* Set a fixed width */
   height: 40px; /* Set a fixed height */
-  background-color: #bbcde5; /* Background color for visibility */
+  background-color: #33ca7f; /* Background color for visibility */
   border-radius: 50%; /* Make it circular */
   position: absolute; /* Positioning it inside translation area */
   top: 10px;
@@ -150,7 +151,7 @@ button:hover {
 }
 
 .copy-btn:hover {
-  background-color: #639fab; /* Change color on hover */
+  background-color: #7dcfb6; /* Change color on hover */
 }
 
 .error {
@@ -162,7 +163,7 @@ button:hover {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #bbcde5; /* Notification background */
+  background-color: #ece4b7; /* Notification background */
   padding: 10px;
   border-radius: 4px;
   transition: opacity 0.3s ease;
@@ -190,17 +191,17 @@ button:hover {
   border-bottom: 1px solid #ccc;
   padding: 10px 0;
 }
+
 .export-btn {
   background-color: #4caf50; /* Green */
   color: white;
   border: none;
-  padding: 10px 15px;
-  text-align: center;
-  text-decoration: none;
-  display: inline-block;
-  margin: 4px 2px;
+  padding: 12px 24px;
+  display: block;
+  margin: 10px 30px;
   cursor: pointer;
   border-radius: 5px;
+  width: 70%;
 }
 
 .export-btn:hover {
@@ -229,18 +230,76 @@ button:hover {
 }
 
 .ranking-rating {
-  margin-top: 16px;
+  display: flex;
+  gap: 80px; /* Adjust gap between the rank and rating sections */
+  align-items: center; /* Align items vertically centered */
 }
 
 .ranking-rating label {
-  display: block;
-  margin-bottom: 8px;
+  display: flex;
+  align-items: center; /* Ensures label and input are aligned horizontally */
 }
 
 .ranking-rating input {
-  width: 100%;
-  padding: 8px;
-  margin-top: 4px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  margin-left: 10px; /* Adds spacing between label and input field */
+  width: 100px; /* Optional: Controls the width of the input field */
+}
+
+/* Container for the language and classification selection */
+.choiceslang, .classification {
+  margin-bottom: 20px;
+}
+
+/* Style the labels */
+.choiceslang label, .classification label {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+  color: #333; /* Darker color for better contrast */
+}
+
+/* Style the select dropdown */
+select {
+  padding: 8px 12px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  width: 100%; /* Make the dropdown take up the full width */
+  max-width: 300px; /* Optional: Control the max width of the dropdown */
+  background-color: #f9f9f9; /* Light background for the select box */
+  transition: border-color 0.3s ease; /* Smooth transition on focus */
+}
+
+/* Style the select dropdown on focus */
+select:focus {
+  border-color: #7dcfb6; /* Change the border color when focused */
+  outline: none; /* Remove the default focus outline */
+}
+
+/* Optional: Add some hover effect */
+select:hover {
+  border-color: #7dcfb6;
+}
+
+.footer {
+  background-color: #051014;
+  padding: 15px;
+  color: #fff;
+  text-align: center;
+}
+.stars {
+  display: flex;
+  cursor: pointer;
+}
+
+.star {
+  font-size: 2em;
+  color: #ccc;
+  margin-right: 5px;
+}
+
+.star:hover,
+.star.selected {
+  color: #ffbc00;
 }
