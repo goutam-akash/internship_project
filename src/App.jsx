@@ -33,6 +33,7 @@ const App = () => {
     const deeplApiKey = import.meta.env.VITE_DEEPL_API_KEY; // DeepL API Key
 
     const deepLLanguageCodes = {
+        English: "EN",
         Spanish: "ES",
         French: "FR",
         German: "DE",
@@ -95,7 +96,7 @@ const App = () => {
                     body: new URLSearchParams({
                         auth_key: import.meta.env.VITE_DEEPL_API_KEY, // Ensure this variable is defined
                         text: text,
-                        source_lang: "EN", // Fixed to English source
+                        // Fixed to English source
                         target_lang: targetLangCode, // Use the mapped language code
                     }),
                 }
@@ -137,6 +138,7 @@ const App = () => {
 
                 // for (const model of models) {
                 let translatedText = "";
+                console.log("Classification: " + formData.classification);
 
                 if (model.startsWith("gpt")) {
                     const prompt = formData.classification.startsWith("t")
@@ -157,6 +159,8 @@ const App = () => {
                     translatedText =
                         response.data.choices[0].message.content.trim();
                 } else if (model.startsWith("gemini")) {
+                    console.log("Model: " + model);
+
                     const genAIModel = googleGenAI.getGenerativeModel({
                         model: model,
                     });
@@ -256,6 +260,7 @@ const App = () => {
                             value={formData.language}
                             onChange={handleInputChange}
                         >
+                            <option value="English">English</option>
                             <option value="Spanish">Spanish</option>
                             <option value="French">French</option>
                             <option value="German">German</option>
