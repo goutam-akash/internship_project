@@ -12,7 +12,7 @@ const App = () => {
         model: "",
         classification: "translation",
     });
-    const [promptType, setPromptType] = useState("translation");
+    // const [promptType, setPromptType] = useState("Translate");
 
     const [error, setError] = useState("");
     const [showNotification, setShowNotification] = useState(false);
@@ -119,6 +119,7 @@ const App = () => {
 
     const translate = async () => {
         const { language, message } = formData;
+        // console.log("Model: " + model);
 
         const models = [
             "gpt-3.5-turbo",
@@ -138,12 +139,15 @@ const App = () => {
                 let translatedText = "";
 
                 if (model.startsWith("gpt")) {
+                    const prompt = formData.classification.startsWith("t")
+                        ? `Translate this sentence into ${language}`
+                        : `Explain in short in ${language}`;
                     const response = await openai.createChatCompletion({
                         model: model,
                         messages: [
                             {
                                 role: "system",
-                                content: `Translate this sentence into ${language}`,
+                                content: prompt,
                             },
                             { role: "user", content: message },
                         ],
@@ -153,17 +157,20 @@ const App = () => {
                     translatedText =
                         response.data.choices[0].message.content.trim();
                 } else if (model.startsWith("gemini")) {
-                    console.log("Model: " + model);
-
                     const genAIModel = googleGenAI.getGenerativeModel({
                         model: model,
                     });
-                    const prompt = `Translate the text: ${message} into ${language} without description`;
+                    const prompt = formData.classification.startsWith("t")
+                        ? `Translate the text: ${message} into ${language} without description`
+                        : `${message} into ${language}, explain in short`;
 
                     const result = await genAIModel.generateContent(prompt);
                     const response = await result.response;
                     translatedText = await response.text();
-                } else if (model === "deepl") {
+                } else if (
+                    model === "deepl" &&
+                    formData.classification.startsWith("t")
+                ) {
                     translatedText = await translateWithDeepL(
                         message,
                         language
@@ -273,7 +280,7 @@ const App = () => {
                             value={formData.classification}
                             onChange={handleInputChange}
                         >
-                            <option value="translation">Translation</option>
+                            <option value="translate">Translation</option>
                             <option value="question">Question</option>
                         </select>
                     </div>
