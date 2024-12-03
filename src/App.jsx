@@ -32,7 +32,6 @@ const App = () => {
 
     const deeplApiKey = import.meta.env.VITE_DEEPL_API_KEY; // DeepL API Key
 
-    
     const deepLLanguageCodes = {
         Spanish: "ES",
         French: "FR",
@@ -119,81 +118,82 @@ const App = () => {
     };
 
     const translate = async () => {
-        const { language, message ,model} = formData;
-      
+        const { language, message, model } = formData;
+
         const models = [
-          "gpt-3.5-turbo",
-          "gpt-4",
-          "gpt-4-turbo",
-          "gemini-1.5-pro-001",
-          "gemini-1.5-flash-001",
-          "gemini-1.5-pro-002",
-          "gemini-1.5-flash-002",
-          "deepl",
+            "gpt-3.5-turbo",
+            "gpt-4",
+            "gpt-4-turbo",
+            "gemini-1.5-pro-001",
+            "gemini-1.5-flash-001",
+            "gemini-1.5-pro-002",
+            "gemini-1.5-flash-002",
+            "deepl",
         ];
-      
+
         try {
-          setIsLoading(true);
-      
-         // for (const model of models) {
+            setIsLoading(true);
+
+            // for (const model of models) {
             let translatedText = "";
-      
+
             if (model.startsWith("gpt")) {
-              const response = await openai.createChatCompletion({
-                model: model,
-                messages: [
-                  {
-                    role: "system",
-                    content: `Translate this sentence into ${language}.`,
-                  },
-                  { role: "user", content: message },
-                ],
-                temperature: 0.3,
-                max_tokens: 100,
-              });
-              translatedText = response.data.choices[0].message.content.trim();
-              setTranslation(translatedText);
+                const response = await openai.createChatCompletion({
+                    model: model,
+                    messages: [
+                        {
+                            role: "system",
+                            content: `Translate this sentence into ${language}.`,
+                        },
+                        { role: "user", content: message },
+                    ],
+                    temperature: 0.3,
+                    max_tokens: 100,
+                });
+                translatedText =
+                    response.data.choices[0].message.content.trim();
             } else if (model.startsWith("gemini")) {
-              const genAIModel = googleGenAI.getGenerativeModel({
-                model: "gemini-1.5-flash",
-              });
-              const prompt = `Translate the text: ${message} into ${language}`;
-      
-              const result = await genAIModel.generateContent(prompt);
-              const response = await result.response;
-              translatedText = await response.text();
+                const genAIModel = googleGenAI.getGenerativeModel({
+                    model: "gemini-1.5-flash",
+                });
+                const prompt = `Translate the text: ${message} into ${language}`;
+
+                const result = await genAIModel.generateContent(prompt);
+                const response = await result.response;
+                translatedText = await response.text();
             } else if (model === "deepl") {
-              translatedText = await translateWithDeepL(message, language);
+                translatedText = await translateWithDeepL(message, language);
             }
-      
+            setTranslation(translatedText);
+
             setTranslations((prev) => ({ ...prev, [model]: translatedText }));
-          //}
-      
-          setIsLoading(false);
-      
-          // Send translation result to the backend
-          await fetch(
-            "https://translation-app-ooq8.onrender.com/api/translations",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                original_message: message,
-                translated_message: translation,
-                language: language,
-                model: model,
-              }),
-            }
-          );
+            //}
+
+            setIsLoading(false);
+
+            // Send translation result to the backend
+            await fetch(
+                "https://translation-app-ooq8.onrender.com/api/translations",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        original_message: message,
+                        translated_message: translatedText,
+                        language: language,
+                        model: model,
+                    }),
+                }
+            );
         } catch (error) {
-          console.error("Translation error:", error);
-          setError("Translation failed. Please try again.");
-          setIsLoading(false);
+            console.error("Translation error:", error);
+            setError("Translation failed. Please try again.");
+            setIsLoading(false);
         }
-      };
-      
+    };
+
     const handleOnSubmit = (e) => {
         e.preventDefault();
         if (!formData.message) {
@@ -225,116 +225,143 @@ const App = () => {
         setRatings((prev) => ({ ...prev, [model]: value }));
     };
 
-    
-
     return (
         <div className="container">
-          <div className="main">
-            <h1>AI Model Comparision</h1>
-      
-            <form onSubmit={handleOnSubmit}>
-              {/* Static Language Selection */}
-              <div className="choiceslang">
-                <label htmlFor="language">Select Language:</label>
-                <select
-                  id="language"
-                  name="language"
-                  value={formData.language}
-                  onChange={handleInputChange}
-                >
-                  <option value="Spanish">Spanish</option>
-                  <option value="French">French</option>
-                  <option value="German">German</option>
-                  <option value="Italian">Italian</option>
-                  <option value="Portuguese">Portuguese</option>
-                  <option value="Dutch">Dutch</option>
-                  <option value="Russian">Russian</option>
-                  <option value="Chinese (Simplified)">Chinese (Simplified)</option>
-                  <option value="Japanese">Japanese</option>
-                  <option value="Korean">Korean</option>
-                  <option value="Arabic">Arabic</option>
-                </select>
-              </div>
-              <div>
-              <label htmlFor="classification">Select Classification:</label>
-            <select
-              name="classification"
-              value={formData.classification}
-              onChange={handleInputChange}
-            >
-              <option value="translation">Translation</option>
-              <option value="question">Question</option>
-            </select>
-              </div>
-      
-              {/* Message Input */}
-              <textarea
-                name="message"
-                placeholder="Type your message here..."
-                value={formData.message}
-                onChange={handleInputChange}
-              ></textarea>
-      
-              {error && <div className="error">{error}</div>}
-      
-              <button type="submit">Translate</button>
-            </form>
-      
-            <button onClick={exportToCSV} className="export-btn">
-              Export to CSV
-            </button>
-          </div>
-      
-          <div className="sidebar">
-            <h2 style={{color:"white", fontSize:"32px"}}>Generated results with different models</h2>
-            <div className="choices" style={{ display: 'flex', flexWrap: 'wrap' }}>
-              {[
-                "gpt-3.5-turbo",
-                "gpt-4",
-                "gpt-4-turbo",
-                "gemini-1.5-pro-001",
-                "gemini-1.5-flash-001",
-                "gemini-1.5-pro-002",
-                "gemini-1.5-flash-002",
-                "deepl",
-              ].map((model) => (
-                <div key={model} className="card" style={{ flex: '1 0 45%', margin: '10px' }}>
-                  <h3>{model}</h3>
-                  <div className="translation">
-                    {translation || 'No translation yet'}
-                  </div>
-                  <div className="ranking-rating">
-                    <label>
-                      Rank: 
-                      <input 
-                        type="number" 
-                        value={rankings[model] || ''} 
-                        onChange={(e) => handleRankingChange(model, e.target.value)} 
-                        min="1" 
-                        max="8"
-                      />
-                    </label>
-                    <label>
-                      Rating: 
-                    </label>
-                    <div className="stars">
-                        <span className="star" data-value="1">&#9733;</span>
-                        <span className="star" data-value="2">&#9733;</span>
-                        <span className="star" data-value="5">&#9733;</span>
-                        <span className="star" data-value="4">&#9733;</span>
-                        <span className="star" data-value="3">&#9733;</span>
+            <div className="main">
+                <h1>AI Model Comparision</h1>
+
+                <form onSubmit={handleOnSubmit}>
+                    {/* Static Language Selection */}
+                    <div className="choiceslang">
+                        <label htmlFor="language">Select Language:</label>
+                        <select
+                            id="language"
+                            name="language"
+                            value={formData.language}
+                            onChange={handleInputChange}
+                        >
+                            <option value="Spanish">Spanish</option>
+                            <option value="French">French</option>
+                            <option value="German">German</option>
+                            <option value="Italian">Italian</option>
+                            <option value="Portuguese">Portuguese</option>
+                            <option value="Dutch">Dutch</option>
+                            <option value="Russian">Russian</option>
+                            <option value="Chinese (Simplified)">
+                                Chinese (Simplified)
+                            </option>
+                            <option value="Japanese">Japanese</option>
+                            <option value="Korean">Korean</option>
+                            <option value="Arabic">Arabic</option>
+                        </select>
                     </div>
-                  </div>
-                </div>
-              ))}
-              <div className={`notification ${showNotification ? "active" : ""}`}>
-                Copied to clipboard!
-              </div>
+                    <div>
+                        <label htmlFor="classification">
+                            Select Classification:
+                        </label>
+                        <select
+                            name="classification"
+                            value={formData.classification}
+                            onChange={handleInputChange}
+                        >
+                            <option value="translation">Translation</option>
+                            <option value="question">Question</option>
+                        </select>
+                    </div>
+
+                    {/* Message Input */}
+                    <textarea
+                        name="message"
+                        placeholder="Type your message here..."
+                        value={formData.message}
+                        onChange={handleInputChange}
+                    ></textarea>
+
+                    {error && <div className="error">{error}</div>}
+
+                    <button type="submit">Translate</button>
+                </form>
+
+                <button onClick={exportToCSV} className="export-btn">
+                    Export to CSV
+                </button>
             </div>
-          </div>
+
+            <div className="sidebar">
+                <h2 style={{ color: "white", fontSize: "32px" }}>
+                    Generated results with different models
+                </h2>
+                <div
+                    className="choices"
+                    style={{ display: "flex", flexWrap: "wrap" }}
+                >
+                    {[
+                        "gpt-3.5-turbo",
+                        "gpt-4",
+                        "gpt-4-turbo",
+                        "gemini-1.5-pro-001",
+                        "gemini-1.5-flash-001",
+                        "gemini-1.5-pro-002",
+                        "gemini-1.5-flash-002",
+                        "deepl",
+                    ].map((model) => (
+                        <div
+                            key={model}
+                            className="card"
+                            style={{ flex: "1 0 45%", margin: "10px" }}
+                        >
+                            <h3>{model}</h3>
+                            <div className="translation">
+                                {translation || "No translation yet"}
+                            </div>
+                            <div className="ranking-rating">
+                                <label>
+                                    Rank:
+                                    <input
+                                        type="number"
+                                        value={rankings[model] || ""}
+                                        onChange={(e) =>
+                                            handleRankingChange(
+                                                model,
+                                                e.target.value
+                                            )
+                                        }
+                                        min="1"
+                                        max="8"
+                                    />
+                                </label>
+                                <label>Rating:</label>
+                                <div className="stars">
+                                    <span className="star" data-value="1">
+                                        &#9733;
+                                    </span>
+                                    <span className="star" data-value="2">
+                                        &#9733;
+                                    </span>
+                                    <span className="star" data-value="5">
+                                        &#9733;
+                                    </span>
+                                    <span className="star" data-value="4">
+                                        &#9733;
+                                    </span>
+                                    <span className="star" data-value="3">
+                                        &#9733;
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                    <div
+                        className={`notification ${
+                            showNotification ? "active" : ""
+                        }`}
+                    >
+                        Copied to clipboard!
+                    </div>
+                </div>
+            </div>
         </div>
-      );
-      };
-      
-      export default App;
-      
+    );
+};
+
+export default App;
