@@ -244,6 +244,24 @@ const App = () => {
     const handleRatingChange = (model, value) => {
         setRatings((prev) => ({ ...prev, [model]: value }));
     };
+    const renderStars = (model) => {
+        const totalStars = 5; // Adjust the number of stars if necessary
+        const stars = [];
+
+        for (let i = 1; i <= totalStars; i++) {
+            stars.push(
+                <span
+                    key={i}
+                    className={`star ${ratings[model] >= i ? "selected" : ""}`} // Corrected here
+                    data-value={i}
+                    onClick={() => handleRatingChange(model, i)} // Corrected here
+                >
+                    &#9733;
+                </span>
+            );
+        }
+        return stars;
+    };
 
     return (
         <div className="container">
@@ -351,23 +369,12 @@ const App = () => {
                                         max="8"
                                     />
                                 </label>
-                                <label>Rating:</label>
-                                <div className="stars">
-                                    <span className="star" data-value="1">
-                                        &#9733;
-                                    </span>
-                                    <span className="star" data-value="2">
-                                        &#9733;
-                                    </span>
-                                    <span className="star" data-value="5">
-                                        &#9733;
-                                    </span>
-                                    <span className="star" data-value="4">
-                                        &#9733;
-                                    </span>
-                                    <span className="star" data-value="3">
-                                        &#9733;
-                                    </span>
+
+                                <div>
+                                    <label>Rating:</label>
+                                    <div className="stars">
+                                        {renderStars(model)}
+                                    </div>
                                 </div>
                             </div>
                         </div>
