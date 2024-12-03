@@ -119,7 +119,6 @@ const App = () => {
 
     const translate = async () => {
         const { language, message } = formData;
-        // console.log("Model: " + model);
 
         const models = [
             "gpt-3.5-turbo",
@@ -314,7 +313,7 @@ const App = () => {
                         "gemini-1.5-pro-002",
                         "gemini-1.5-flash-002",
                         "deepl",
-                    ].map((model, index) => (
+                    ].map((model) => (
                         <div
                             key={model}
                             className="card"
