@@ -72,7 +72,7 @@ app.post("/api/translations", async (req, res) => {
 
     try {
         const result = await pool.query(
-            "INSERT INTO translations (original_message, translated_message, language, model, ranking, rating, classification) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
+            "INSERT INTO translations (original_message, translated_message, language, model, ranking, rating, classification) VALUES ($1, $2, $3, $4, COALESCE($5, DEFAULT), COALESCE($6, DEFAULT), COALESCE($7, DEFAULT)) RETURNING *",
             [
                 original_message,
                 translated_message,
