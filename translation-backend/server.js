@@ -29,7 +29,7 @@ const pool = new Pool({
 // Function to create the table if it doesn't exist
 const createTableIfNotExists = async () => {
     const createTableQuery = `
-   CREATE TABLE IF NOT EXISTS translations (
+    CREATE TABLE IF NOT EXISTS translations (
     id SERIAL PRIMARY KEY,
     original_message TEXT NOT NULL,
     translated_message TEXT NOT NULL,
@@ -37,10 +37,8 @@ const createTableIfNotExists = async () => {
     model VARCHAR(50) NOT NULL,
     ranking INT DEFAULT 0,
     rating FLOAT CHECK (rating BETWEEN 0 AND 5) DEFAULT 0,
-    classification VARCHAR(50) DEFAULT 'translation',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-
+    );
     `;
 
     try {
@@ -58,12 +56,12 @@ createTableIfNotExists();
 app.post("/api/translations", async (req, res) => {
     const {
         original_message,
-        translated_message, 
+        translated_message,
         language,
         model,
-        ranking ,
-        rating ,
-        classification ,
+        ranking,
+        rating,
+        classification,
     } = req.body;
     if (!original_message || !translated_message || !language || !model) {
         res.status(400).json({ error: "Missing required fields" });
@@ -72,7 +70,7 @@ app.post("/api/translations", async (req, res) => {
 
     try {
         const result = await pool.query(
-            "INSERT INTO translations (original_message, translated_message, language, model, ranking, rating, classification) VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING *",
+            "INSERT INTO translations (original_message, translated_message, language, model, ranking, rating, classification) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *",
             [
                 original_message,
                 translated_message,

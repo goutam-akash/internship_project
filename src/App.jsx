@@ -136,10 +136,7 @@ const App = () => {
         for (const model of models) {
             try {
                 setIsLoading(true);
-
                 let translatedText = "";
-                console.log("Classification: " + formData.classification);
-
                 if (model.startsWith("gpt")) {
                     const prompt = formData.classification.startsWith("t")
                         ? `Translate this sentence into ${language}`
@@ -159,8 +156,6 @@ const App = () => {
                     translatedText =
                         response.data.choices[0].message.content.trim();
                 } else if (model.startsWith("gemini")) {
-                    console.log("Model: " + model);
-
                     const genAIModel = googleGenAI.getGenerativeModel({
                         model: model,
                     });
@@ -214,16 +209,17 @@ const App = () => {
                             translated_message: translations[model],
                             language: language,
                             model: model,
-                            // ranking: rankings[model],
-                            // rating: ratings[model]
+                            ranking: rankings[model],
+                            rating: ratings[model],
+                            classification: formData.classification,
                         }),
                     }
                 );
-                console.log("All models saved successfully");
             } catch (error) {
                 console.error("Error saving models:", error);
             }
         }
+        console.log("All models saved successfully");
     };
 
     const handleOnGenerate = (e) => {
