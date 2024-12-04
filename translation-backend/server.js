@@ -29,7 +29,7 @@ const pool = new Pool({
 // Function to create the table if it doesn't exist
 const createTableIfNotExists = async () => {
     const createTableQuery = `
-    CREATE TABLE IF NOT EXISTS translations (
+   CREATE TABLE IF NOT EXISTS translations (
     id SERIAL PRIMARY KEY,
     original_message TEXT NOT NULL,
     translated_message TEXT NOT NULL,
@@ -37,8 +37,10 @@ const createTableIfNotExists = async () => {
     model VARCHAR(50) NOT NULL,
     ranking INT DEFAULT 0,
     rating FLOAT CHECK (rating BETWEEN 0 AND 5) DEFAULT 0,
+    classification VARCHAR(50) DEFAULT 'translation',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
+);
+
     `;
 
     try {
