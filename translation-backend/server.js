@@ -58,12 +58,12 @@ createTableIfNotExists();
 app.post("/api/translations", async (req, res) => {
     const {
         original_message,
-        translated_message,
+        translated_message, 
         language,
         model,
-        ranking =0 ,
-        rating =0,
-        classification = 'translation',
+        ranking ,
+        rating ,
+        classification ,
     } = req.body;
     if (!original_message || !translated_message || !language || !model) {
         res.status(400).json({ error: "Missing required fields" });
