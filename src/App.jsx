@@ -21,15 +21,25 @@ const App = () => {
     const [rankings, setRankings] = useState({});
     const [ratings, setRatings] = useState({});
 
+    const models = [
+        "gpt-3.5-turbo",
+        "gpt-4",
+        "gpt-4-turbo",
+        "gemini-1.5-pro-001",
+        "gemini-1.5-flash-001",
+        "gemini-1.5-pro-002",
+        "gemini-1.5-flash-002",
+        "deepl",
+    ];
+
     const googleGenAI = new GoogleGenerativeAI(
         import.meta.env.VITE_GOOGLE_API_KEY
     ); // Google API Key
 
     const configuration = new Configuration({
-        apiKey: import.meta.env.VITE_OPENAI_KEY, // OpenAI API Key
-    });
+        apiKey: import.meta.env.VITE_OPENAI_KEY,
+    }); // OpenAI API Key
     const openai = new OpenAIApi(configuration);
-
     const deeplApiKey = import.meta.env.VITE_DEEPL_API_KEY; // DeepL API Key
 
     const deepLLanguageCodes = {
@@ -45,6 +55,7 @@ const App = () => {
         Portuguese: "PT",
         Polish: "PL",
     };
+
     const exportToCSV = async () => {
         try {
             const response = await fetch(
@@ -60,7 +71,6 @@ const App = () => {
             if (!response.ok) {
                 throw new Error("Failed to export data to CSV");
             }
-
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement("a");
@@ -75,10 +85,12 @@ const App = () => {
             setError("Failed to export data. Please try again.");
         }
     };
+
     const handleInputChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
         setError("");
     };
+
     const translateWithDeepL = async (text, toLang) => {
         try {
             const targetLangCode = deepLLanguageCodes[toLang];
@@ -94,7 +106,7 @@ const App = () => {
                         "Content-Type": "application/x-www-form-urlencoded",
                     },
                     body: new URLSearchParams({
-                        auth_key: import.meta.env.VITE_DEEPL_API_KEY, // Ensure this variable is defined
+                        auth_key: deeplApiKey, // Ensure this variable is defined
                         text: text,
                         // Fixed to English source
                         target_lang: targetLangCode, // Use the mapped language code
@@ -120,23 +132,11 @@ const App = () => {
 
     const translate = async () => {
         const { language, message } = formData;
-        // console.log("Model: " + model);
 
-        const models = [
-            "gpt-3.5-turbo",
-            "gpt-4",
-            "gpt-4-turbo",
-            "gemini-1.5-pro-001",
-            "gemini-1.5-flash-001",
-            "gemini-1.5-pro-002",
-            "gemini-1.5-flash-002",
-            "deepl",
-        ];
         for (const model of models) {
             try {
                 setIsLoading(true);
 
-                // for (const model of models) {
                 let translatedText = "";
                 console.log("Classification: " + formData.classification);
 
@@ -180,17 +180,28 @@ const App = () => {
                         language
                     );
                 }
-                setTranslation(translatedText);
+                // setTranslation(translatedText);
 
                 setTranslations((prev) => ({
                     ...prev,
                     [model]: translatedText,
                 }));
-                //}
 
                 setIsLoading(false);
+            } catch (error) {
+                console.error("Translation error:", error);
+                setError("Translation failed. Please try again.");
+                setIsLoading(false);
+            }
+        }
+    };
 
-                // Send translation result to the backend
+    const sendDataToDatabase = async () => {
+        const { language, message } = formData;
+
+        for (const model of models) {
+            try {
+                // Send translations result to the backend
                 await fetch(
                     "https://translation-app-ooq8.onrender.com/api/translations",
                     {
@@ -200,27 +211,32 @@ const App = () => {
                         },
                         body: JSON.stringify({
                             original_message: message,
-                            translated_message: translatedText,
+                            translated_message: translations[model],
                             language: language,
                             model: model,
+                            // ranking: rankings[model],
+                            // rating: ratings[model]
                         }),
                     }
                 );
+                console.log("All models saved successfully");
             } catch (error) {
-                console.error("Translation error:", error);
-                setError("Translation failed. Please try again.");
-                setIsLoading(false);
+                console.error("Error saving models:", error);
             }
         }
     };
 
-    const handleOnSubmit = (e) => {
+    const handleOnGenerate = (e) => {
         e.preventDefault();
         if (!formData.message) {
             setError("Please enter the message.");
             return;
         }
         translate();
+    };
+
+    const handleOnSubmit = async () => {
+        await sendDataToDatabase();
     };
 
     const handleCopy = () => {
@@ -268,7 +284,7 @@ const App = () => {
             <div className="main">
                 <h1>AI Model Comparision</h1>
 
-                <form onSubmit={handleOnSubmit}>
+                <form>
                     {/* Static Language Selection */}
                     <div className="choiceslang">
                         <label htmlFor="language">Select Language:</label>
@@ -318,7 +334,12 @@ const App = () => {
 
                     {error && <div className="error">{error}</div>}
 
-                    <button type="submit">Translate</button>
+                    <button type="button" onClick={handleOnGenerate}>
+                        Generate
+                    </button>
+                    <button type="button" onClick={handleOnSubmit}>
+                        Submit
+                    </button>
                 </form>
 
                 <button onClick={exportToCSV} className="export-btn">
