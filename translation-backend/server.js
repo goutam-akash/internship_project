@@ -61,9 +61,9 @@ app.post("/api/translations", async (req, res) => {
         translated_message,
         language,
         model,
-        ranking,
-        rating,
-        classification,
+        ranking =0 ,
+        rating =0,
+        classification = 'translation',
     } = req.body;
     if (!original_message || !translated_message || !language || !model) {
         res.status(400).json({ error: "Missing required fields" });
@@ -72,7 +72,7 @@ app.post("/api/translations", async (req, res) => {
 
     try {
         const result = await pool.query(
-            "INSERT INTO translations (original_message, translated_message, language, model, ranking, rating, classification) VALUES ($1, $2, $3, $4, $5 || 0, $6 || 0, $7 || 'translation') RETURNING *",
+            "INSERT INTO translations (original_message, translated_message, language, model, ranking, rating, classification) VALUES ($1, $2, $3, $4, $5, $6,$7) RETURNING *",
             [
                 original_message,
                 translated_message,
