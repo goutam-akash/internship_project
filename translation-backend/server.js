@@ -30,14 +30,16 @@ const pool = new Pool({
 const createTableIfNotExists = async () => {
     const createTableQuery = `
     CREATE TABLE IF NOT EXISTS translations (
-      id SERIAL PRIMARY KEY,
-      original_message TEXT NOT NULL,
-      translated_message TEXT NOT NULL,
-      language VARCHAR(50) NOT NULL,
-      model VARCHAR(50) NOT NULL,
-      created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    id SERIAL PRIMARY KEY,
+    original_message TEXT NOT NULL,
+    translated_message TEXT NOT NULL,
+    language VARCHAR(50) NOT NULL,
+    model VARCHAR(50) NOT NULL,
+    ranking INT DEFAULT 0,
+    rating FLOAT CHECK (rating BETWEEN 0 AND 5) DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
-  `;
+    `;
 
     try {
         await pool.query(createTableQuery);
@@ -52,16 +54,37 @@ createTableIfNotExists();
 
 // Route for handling POST requests
 app.post("/api/translations", async (req, res) => {
-    const { original_message, translated_message, language, model } = req.body;
-    if (!original_message || !translated_message || !language || !model) {
+    const {
+        original_message,
+        translated_message,
+        language,
+        model,
+        ranking,
+        rating,
+    } = req.body;
+    if (
+        !original_message ||
+        !translated_message ||
+        !language ||
+        !model ||
+        !ranking ||
+        !rating
+    ) {
         res.status(400).json({ error: "Missing required fields" });
         return;
     }
 
     try {
         const result = await pool.query(
-            "INSERT INTO translations (original_message, translated_message, language, model) VALUES ($1, $2, $3, $4) RETURNING *",
-            [original_message, translated_message, language, model]
+            "INSERT INTO translations (original_message, translated_message, language, model, ranking, rating) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *",
+            [
+                original_message,
+                translated_message,
+                language,
+                model,
+                ranking,
+                rating,
+            ]
         );
         res.status(201).json(result.rows[0]);
     } catch (error) {
