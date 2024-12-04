@@ -66,9 +66,7 @@ app.post("/api/translations", async (req, res) => {
         !original_message ||
         !translated_message ||
         !language ||
-        !model ||
-        !ranking ||
-        !rating
+        !model 
     ) {
         res.status(400).json({ error: "Missing required fields" });
         return;
